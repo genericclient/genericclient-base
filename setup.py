@@ -4,18 +4,17 @@ from setuptools import setup, find_packages
 VERSION = '0.0.1'
 
 
-f = open(os.path.join(os.path.dirname(__file__), 'README.rst'))
-readme = f.read()
-f.close()
+with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as f:
+    readme = f.read()
 
 setup(
     name='genericclient-base',
     version=VERSION,
-    description='https://github.com/fcurella/genericclient-base',
+    description='',
     long_description=readme,
     author='Flavio Curella',
     author_email='flavio.curella@gmail.com',
-    url='https://github.com/fcurella/genericclient-base',
+    url='https://github.com/genericclient/genericclient-base',
     license='MIT License',
     include_package_data=True,
     packages=find_packages(),
