@@ -24,14 +24,16 @@ class BaseResource(object):
         '__class__',
         '_endpoint',
         'payload',
+        'response',
         'save',
         'delete',
         '_urljoin',
     )
 
-    def __init__(self, endpoint, **kwargs):
+    def __init__(self, endpoint, response=None, **kwargs):
         self._endpoint = endpoint
         self.payload = kwargs
+        self.response = response
 
         super(BaseResource, self).__init__()
 
@@ -90,7 +92,14 @@ class BaseResource(object):
         raise not NotImplementedError
 
 
+class BaseResourceSet(list):
+    def __init__(self, response, items):
+        self.response = response
+        super(BaseResourceSet, self).__init__(items)
+
+
 class BaseEndpoint(object):
+    resource_set_class = BaseResourceSet
     resource_class = BaseResource
     detail_route_class = DetailRoute
     list_route_class = ListRoute
@@ -121,7 +130,7 @@ class BaseEndpoint(object):
     def filter(self, **kwargs):
         response = self.request('get', self.url, params=kwargs)
         results = self.api.hydrate_json(response)
-        return [self.resource_class(self, **result) for result in results]
+        return self.resource_set_class(response, [self.resource_class(self, **result) for result in results])
 
     def all(self):
         return self.filter()
@@ -146,9 +155,9 @@ class BaseEndpoint(object):
             if len(result) > 1:
                 raise exceptions.MultipleResourcesFound("Found {} `{}` for {}".format(len(result), self.name, kwargs))
 
-            return self.resource_class(self, **result[0])
+            return self.resource_class(self, response, **result[0])
 
-        return self.resource_class(self, **result)
+        return self.resource_class(self, response, **result)
 
     def create(self, payload):
         response = self.request('post', self.url, json=payload)
@@ -156,7 +165,7 @@ class BaseEndpoint(object):
             raise exceptions.HTTPError(response)
 
         result = self.api.hydrate_json(response)
-        return self.resource_class(self, **result)
+        return self.resource_class(self, response, **result)
 
     def get_or_create(self, **kwargs):
         defaults = kwargs.pop('defaults', {})
@@ -170,7 +179,7 @@ class BaseEndpoint(object):
 
     def create_or_update(self, payload):
         if 'id' in payload or 'uuid' in payload:
-            return self.resource_class(self, **payload).save()
+            return self.resource_class(self, response=None, **payload).save()
 
         return self.create(payload)
 
