@@ -29,10 +29,14 @@ setup(
         'License :: OSI Approved :: MIT License',
     ],
     install_requires=[
+        "attrs>=17.4.0,<17.5.0",
     ],
-    test_suite='tests',
+    setup_requires=[
+        "pytest-runner",
+    ],
     tests_require=[
         "coveralls",
+        "pytest",
         "mock",
     ]
 )

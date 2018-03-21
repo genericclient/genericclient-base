@@ -4,6 +4,7 @@ except ImportError:
     from urlparse import urlparse
 
 from . import exceptions, utils
+from .response import ParsedResponse
 from .routes import DetailRoute, ListRoute
 
 _version = "0.0.4"
@@ -124,13 +125,9 @@ class BaseEndpoint(object):
     def _urljoin(self, *parts):
         return utils.urljoin(self.url, parts, self.trail)
 
-    def status_code(self, response):
-        return response.status_code
-
     def filter(self, **kwargs):
         response = self.request('get', self.url, params=kwargs)
-        results = self.api.hydrate_json(response)
-        return self.resource_set_class(response, [self.resource_class(self, **result) for result in results])
+        return self.resource_set_class(response, [self.resource_class(self, **result) for result in response.data])
 
     def all(self):
         return self.filter()
@@ -144,10 +141,10 @@ class BaseEndpoint(object):
             url = self.url
             response = self.request('get', url, params=kwargs)
 
-        if self.status_code(response) == 404:
+        if response.status_code == 404:
             raise exceptions.ResourceNotFound("No `{}` found for {}".format(self.name, kwargs))
 
-        result = self.api.hydrate_json(response)
+        result = response.data
 
         if isinstance(result, list):
             if len(result) == 0:
@@ -161,11 +158,10 @@ class BaseEndpoint(object):
 
     def create(self, payload):
         response = self.request('post', self.url, json=payload)
-        if self.status_code(response) != 201:
+        if response.status_code != 201:
             raise exceptions.HTTPError(response)
 
-        result = self.api.hydrate_json(response)
-        return self.resource_class(self, response, **result)
+        return self.resource_class(self, response, **response.data)
 
     def get_or_create(self, **kwargs):
         defaults = kwargs.pop('defaults', {})
@@ -188,15 +184,18 @@ class BaseEndpoint(object):
 
         response = self.request('delete', url)
 
-        if self.status_code(response) == 404:
+        if response.status_code == 404:
             raise exceptions.ResourceNotFound("No `{}` found for pk {}".format(self.name, pk))
 
-        if self.status_code(response) != 204:
+        if response.status_code != 204:
             raise exceptions.HTTPError(response)
 
         return None
 
     def request(self, method, url, *args, **kwargs):
+        # Must return an instance of `ParsedResponse`.
+        # Use `self.api.hydrate_data` to parse the response's body.
+        # Use `genericclient_base.utils.
         raise NotImplementedError
 
 
@@ -211,18 +210,25 @@ class BaseGenericClient(object):
     UnknownPK = UnknownPK
 
     def __init__(self, url, auth=None, session=None, trailing_slash=False):
-        self.session = self.set_session(session, auth)
         if not url.endswith('/'):
             url = '{}/'.format(url)
         self.url = url
+        self.auth = auth
         self.trailing_slash = trailing_slash
+        self._session = session
         super(BaseGenericClient, self).__init__()
 
-    def set_session(self, session, auth):
+    def hydrate_data(self, response):
         raise NotImplementedError
 
-    def hydrate_json(self, response):
-        raise NotImplementedError
+    def get_or_create_session(self):
+        if self._session is None:
+            self._session = self.make_session()
+        return self._session
+
+    @property
+    def session(self):
+        return self.get_or_create_session()
 
     @property
     def host(self):
