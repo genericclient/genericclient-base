@@ -87,10 +87,10 @@ class BaseResource(object):
         return utils.urljoin(self._endpoint.url, parts, self._endpoint.trail)
 
     def save(self):
-        raise not NotImplementedError
+        raise NotImplementedError
 
     def delete(self):
-        raise not NotImplementedError
+        raise NotImplementedError
 
 
 class BaseResourceSet(list):
