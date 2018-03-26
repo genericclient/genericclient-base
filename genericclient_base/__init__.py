@@ -221,6 +221,9 @@ class BaseGenericClient(object):
     def hydrate_data(self, response):
         raise NotImplementedError
 
+    def make_session(self):
+        raise NotImplementedError
+
     def get_or_create_session(self):
         if self._session is None:
             self._session = self.make_session()
