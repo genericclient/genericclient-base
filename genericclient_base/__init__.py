@@ -4,7 +4,7 @@ except ImportError:
     from urlparse import urlparse
 
 from . import exceptions, utils
-from .response import ParsedResponse
+from .response import ParsedResponse  # noqa
 from .routes import DetailRoute, ListRoute
 
 _version = "1.0.0"
@@ -87,10 +87,20 @@ class BaseResource(object):
         return utils.urljoin(self._endpoint.url, parts, self._endpoint.trail)
 
     def save(self):
-        raise NotImplementedError
+        if self.pk is not None:
+            url = self._urljoin(self.pk)
+            try:
+                response = self._endpoint.request('put', url, json=self.payload)
+            except exceptions.BadRequestError:
+                response = self._endpoint.request('patch', url, json=self.payload)
+        else:
+            response = self._endpoint.request('post', self._endpoint.url, json=self.payload)
+        self.payload = response.data
+        return self
 
     def delete(self):
-        raise NotImplementedError
+        url = self._urljoin(self.pk)
+        self._endpoint.request('delete', url)
 
 
 class BaseResourceSet(list):
@@ -193,7 +203,7 @@ class BaseEndpoint(object):
         return None
 
     def request(self, method, url, *args, **kwargs):
-        # Must return an instance of `ParsedResponse`.
+        # Must return an instance of `genericclient_base.response.ParsedResponse`.
         # Use `self.api.hydrate_data` to parse the response's body.
         # Use `genericclient_base.utils.
         raise NotImplementedError
