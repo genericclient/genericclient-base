@@ -7,7 +7,7 @@ from . import exceptions, utils
 from .response import ParsedResponse  # noqa
 from .routes import DetailRoute, ListRoute
 
-_version = "1.0.0"
+_version = "1.1.0"
 __version__ = VERSION = tuple(map(int, _version.split('.')))
 
 
