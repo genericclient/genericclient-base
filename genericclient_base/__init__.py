@@ -137,24 +137,13 @@ class BaseEndpoint(object):
 
     def filter(self, **kwargs):
         params = kwargs.copy()
-        results = []
-        url = self.url
-        if self.api.autopaginate:
-            while True:
-                response = self.request('get', url, params=params)
-                results += response.data
-                links = response.links
-                link = links.get('next')
-                if link is not None:
-                    params = {}
-                    url = link['url']
-                else:
-                    break
+        if self.api.autopaginate is not None:
+            response, results = self.api.autopaginate(self, **params)
         else:
-            response = self.request('get', url, params=params)
-            results += response.data
+            response = self.request('get', self.url, params=params)
+            results = response.data
 
-        return self.resource_set_class(response, [self.resource_class(self, **result) for result in response.data])
+        return self.resource_set_class(response, [self.resource_class(self, **result) for result in results])
 
     def all(self):
         return self.filter()
@@ -236,7 +225,7 @@ class BaseGenericClient(object):
     BadRequestError = BadRequestError
     UnknownPK = UnknownPK
 
-    def __init__(self, url, auth=None, session=None, trailing_slash=False, autopaginate=False):
+    def __init__(self, url, auth=None, session=None, trailing_slash=False, autopaginate=None):
         if not url.endswith('/'):
             url = '{}/'.format(url)
         self.url = url
