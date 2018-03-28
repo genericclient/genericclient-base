@@ -1,6 +1,6 @@
 def link_header(endpoint, params):
     results = []
-    lookup = kwargs.copy()
+    lookup = params.copy()
     url = endpoint.url
 
     while True:
