@@ -1,15 +1,15 @@
-def link_header(endpoint, **kwargs):
+def link_header(endpoint, params):
     results = []
-    params = kwargs.copy()
+    lookup = kwargs.copy()
     url = endpoint.url
 
     while True:
-        response = endpoint.request('get', url, params=params)
+        response = endpoint.request('get', url, params=lookup)
         results += response.data
         links = response.links
         link = links.get('next')
         if link is not None:
-            params = {}
+            lookup = {}
             url = link['url']
         else:
             break

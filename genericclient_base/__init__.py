@@ -138,7 +138,7 @@ class BaseEndpoint(object):
     def filter(self, **kwargs):
         params = kwargs.copy()
         if self.api.autopaginate is not None:
-            response, results = self.api.autopaginate(self, **params)
+            response, results = self.api.autopaginate(self, params)
         else:
             response = self.request('get', self.url, params=params)
             results = response.data
