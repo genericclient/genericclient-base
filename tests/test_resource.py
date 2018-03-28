@@ -60,15 +60,3 @@ def test_set_fk(BaseEndpoint):
     group = BaseResource(endpoint2, id=2)
     user.group = group
     assert user.payload['group'] == 2
-
-
-@mock.patch('genericclient_base.BaseEndpoint')
-def test_protocol(BaseEndpoint):
-    endpoint = BaseEndpoint()
-    user = BaseResource(endpoint, id=1)
-
-    with pytest.raises(NotImplementedError):
-        user.save()
-
-    with pytest.raises(NotImplementedError):
-        user.delete()
