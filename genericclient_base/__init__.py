@@ -209,9 +209,8 @@ class BaseEndpoint(object):
         return None
 
     def request(self, method, url, *args, **kwargs):
-        # Must return an instance of `genericclient_base.response.ParsedResponse`.
-        # Use `self.api.hydrate_data` to parse the response's body.
-        # Use `genericclient_base.utils.
+        # Must return an instance of ``genericclient_base.response.ParsedResponse``.
+        # Use ``self.api.hydrate_data`` to parse the response's body.
         raise NotImplementedError
 
 
