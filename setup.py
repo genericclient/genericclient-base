@@ -29,7 +29,7 @@ setup(
         'License :: OSI Approved :: MIT License',
     ],
     install_requires=[
-        "attrs>=17.4.0,<17.5.0",
+        "attrs>=17.4.0",
     ],
     setup_requires=[
         "pytest-runner",
