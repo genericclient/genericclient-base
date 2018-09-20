@@ -1,7 +1,7 @@
 try:
-    from unittest import mock
+    from unittest import mock as _mock
 except ImportError:
-    import mock
+    import mock as _mock
 import pytest
 
 from genericclient_base import BaseGenericClient
@@ -17,12 +17,17 @@ def response():
 
 
 @pytest.fixture
+def mock():
+    return _mock
+
+
+@pytest.fixture
 def client():
     return BaseGenericClient(url='http://dummy.org')
 
 
 @pytest.fixture
-def patched_client(monkeypatch, client, response):
+def patched_client(monkeypatch, mock, client, response):
     monkeypatch.setattr(client, 'make_session', mock.MagicMock())
     monkeypatch.setattr(client.endpoint_class, 'request', response)
     return client
