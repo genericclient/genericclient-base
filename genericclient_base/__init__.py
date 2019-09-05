@@ -261,3 +261,8 @@ class BaseGenericClient(object):
         if name in self.endpoint_classes:
             return self.endpoint_classes[name](self, name)
         return self.endpoint_class(self, name)
+
+    def __getitem__(self, item):
+        if item in self.endpoint_classes:
+            return self.endpoint_classes[item](self, item)
+        return self.endpoint_class(self, item)

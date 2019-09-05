@@ -39,6 +39,11 @@ def test_attribute(client):
     assert isinstance(endpoint, BaseEndpoint)
 
 
+def test_item(client):
+    endpoint = client["active-users"]
+    assert isinstance(endpoint, BaseEndpoint)
+
+
 def test_endpoints(monkeypatch, mock):
     class PostResource(BaseResource):
         pk_name = 'slug'
@@ -67,6 +72,9 @@ def test_endpoints(monkeypatch, mock):
     post = client.posts.get(slug='cats-demand-longer-breaks')
     assert post.__class__ is PostResource
 
+    post = client["posts"].get(slug='cats-demand-longer-breaks')
+    assert post.__class__ is PostResource
+
     monkeypatch.setattr(client.endpoint_class, 'request', mock.MagicMock())
 
     post.save()
@@ -78,5 +86,4 @@ def test_endpoints(monkeypatch, mock):
             'headline': 'Cats Demand Longer Breaks, Cleaner Litter, Slower Mice',
         }
     )
-
 
