@@ -65,6 +65,9 @@ class Route(object):
     def __getattr__(self, name):
         return self.action_class(self._endpoint, self._method, name)
 
+    def __getitem__(self, name):
+        return self.action_class(self._endpoint, self._method, name)
+
     def __repr__(self):
         return '<{0} on `{}`>'.format(
             self.__class__.__name__, self._endpoint.url,
@@ -83,6 +86,9 @@ class DetailRoute(Route):
         self._lookup = kwargs
 
     def __getattr__(self, name):
+        return self.action_class(self._endpoint, self._method, name, **self._lookup)
+
+    def __geitem__(self, name):
         return self.action_class(self._endpoint, self._method, name, **self._lookup)
 
     def __repr__(self):

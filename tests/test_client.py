@@ -86,4 +86,3 @@ def test_endpoints(monkeypatch, mock):
             'headline': 'Cats Demand Longer Breaks, Cleaner Litter, Slower Mice',
         }
     )
-
